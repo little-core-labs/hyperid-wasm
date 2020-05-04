@@ -122,7 +122,6 @@ function hyperid(opts) {
   return generate
 
   function generate() {
-    outputBuffer.fill(0)
     const size = wasm.exports.hyperid_generate(contextPointer, outputPointer)
     return outputBuffer.slice(0, size).toString()
   }

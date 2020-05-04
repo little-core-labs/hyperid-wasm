@@ -52,7 +52,7 @@ $(TARGET): $(SRC)
 	$(ZZ) build $(ZZFLAGS)
 	cp target/release/lib/libhyperid.so $@
 ifneq ($(WASMOPT),)
-	$(WASMOPT) -Oz $@ -o $@
+	$(WASMOPT) -O4 $@ -o $@
 endif
 
 hyperid.js: $(TARGET)

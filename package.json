@@ -4,6 +4,7 @@
   "description": "hyperid implementation written in ZZ compiled to WASM format",
   "main": "index.js",
   "scripts": {
+    "bench": "node benchmark.js",
     "test": "nyc -x tests -x hyperid.js tape tests/*.js"
   },
   "keywords": [
@@ -13,16 +14,16 @@
   "author": "Joseph Werle <werle@littlstar.com>",
   "license": "MIT",
   "devDependencies": {
+    "benchmark": "^2.1.4",
     "hyperid": "^2.0.4",
+    "microtime": "^3.0.0",
     "nyc": "^15.0.1",
     "tape": "^5.0.0",
     "wasm2js": "^0.2.0"
   },
   "dependencies": {
-    "@little-core-labs/varint-wasm": "0.0.4",
     "base64-wasm": "^0.2.1",
     "uuid": "^8.0.0",
-    "uuid-parse": "^1.1.0",
-    "varint": "^5.0.0"
+    "uuid-parse": "^1.1.0"
   }
 }

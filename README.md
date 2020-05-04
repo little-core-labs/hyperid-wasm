@@ -52,8 +52,18 @@ Generate a hyperid from `hyperid` context. (See above)
 const id = generator()
 ```
 
-## Limits
+## Benchmark
 
+This original module is ~4x faster than this one.
+
+```
+hyperid generate - variable length (original) x 11,024,841 ops/sec ±0.83% (89 runs sampled)
+hyperid generate - variable length (wasm) x 3,545,414 ops/sec ±0.93% (89 runs sampled)
+hyperid generate - fixed length (original) x 9,288,525 ops/sec ±1.39% (88 runs sampled)
+hyperid generate - fixed length (wasm) x 3,264,580 ops/sec ±0.95% (91 runs sampled)
+```
+
+## Limits
 
 ### Initial Memory
 

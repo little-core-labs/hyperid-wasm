@@ -1,6 +1,5 @@
 const { parse } = require('uuid-parse')
 const hyperid = require('hyperid')
-const varint = require('varint')
 const uuid = require('uuid')
 const path = require('path')
 const test = require('tape')
