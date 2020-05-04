@@ -23,6 +23,8 @@ export struct Context {
   Options options;
   u32 count;
   u8 id[CONTEXT_ID_BYTES];
+
+  Result result;
 }
 
 export struct Result {
@@ -39,6 +41,16 @@ export fn make(Context new mut *self, u32 offset, Options options)
   self->count = offset;
 
   baseid(self->id, &self->uuid, self->options.url_safe);
+
+  for (usize mut i = 0; i < 10; ++i) {
+    static_attest(len(self->result.bytes) > CONTEXT_ID_BYTES - 1 + i);
+    self->result.bytes[CONTEXT_ID_BYTES - 1 + i] = (u8) 0x30;
+  }
+
+  for (usize mut i = 0 ; i < CONTEXT_ID_BYTES - 1; ++i) {
+    static_attest(len(self->result.bytes) > i);
+    self->result.bytes[i] = self->id[i];
+  }
 }
 
 export fn count(Context *self) -> u32 {
@@ -56,12 +68,14 @@ export fn generate(Context mut *self, Result mut *out) -> usize
   usize mut size = 0;
 
   let opts = &self->options;
-
-  for (usize mut i = 0 ; i < CONTEXT_ID_BYTES - 1; ++i) {
-    out->bytes[i] = self->id[i];
-  }
+  u8 mut *bytes = self->result.bytes;
 
   offset += CONTEXT_ID_BYTES - 1;
+
+  for (usize mut i = 0; i < offset; ++i) {
+    out->bytes[i] = bytes[i];
+  }
+
   size += offset;
 
   if opts->fixed_length {
@@ -71,14 +85,6 @@ export fn generate(Context mut *self, Result mut *out) -> usize
     counter_offset = padded;
   }
 
-  static_attest(RESULT_ID_BYTES == len(out->bytes));
-
-  // pad counter
-  for (usize mut i = 0; i < padded; ++i) {
-    static_attest(len(out->bytes) > offset + i);
-    out->bytes[offset + i] = (u8) 0x30;
-  }
-
   size += padded;
   offset--;
 
@@ -86,7 +92,7 @@ export fn generate(Context mut *self, Result mut *out) -> usize
   for (usize mut i = counter_offset; i > 0; --i) {
     static_attest(len(out->bytes) > offset + i);
     out->bytes[offset + i] = (u8) (0x30 + (n % 10));
-    n = n / 10;
+    n = div10(n);
   }
 
   self->count = self->count + 1;
@@ -149,4 +155,45 @@ fn log10(u32 n) -> usize {
   if n >= 100 { return 2; }
   if n >= 10 { return 1; }
   return 0;
+}
+
+fn div10(u32 n) -> u32 {
+  u64 inverse = 0x1999999a;
+  return (u32) ((inverse * (u64) n) >> 32);
+}
+
+fn bcd16(u16 n, u8 mut *out)
+  where len(out) >= 3
+{
+  u8 mut d4 = 0;
+  u8 mut d3 = 0;
+  u8 mut d2 = 0;
+  u8 mut d1 = 0;
+  u8 mut d0 = 0;
+  u8 mut q = 0;
+  //d4 MSD, d0 LSD
+
+  d1 = (u8 )(n>>4)  & 0xf;
+  d2 = (u8 )(n>>8)  & 0xf;
+  d3 = (u8 )(n>>12) & 0xf;
+
+  d0 = (u8) 6*(d3 + d2 + d1) + (u8) (n & 0xf);
+  q = (u8) (d0 * 0xcd) >> 11;
+  d0 = (u8) d0 - 10*q;
+
+  d1 = (u8) q + 9*d3 + 5*d2 + d1;
+  q = (u8) (d1 * 0xcd) >> 11;
+  d1 = (u8) d1 - 10*q;
+
+  d2 = (u8) q + 2*d2;
+  q = (u8) (d2 * 0x1a) >> 8;
+  d2 = (u8) d2 - 10*q;
+
+  d3 = (u8) q + 4*d3;
+  d4 = (u8) (d3 * 0x1a) >> 8;
+  d3 = (u8) d3 - 10*d4;
+
+  out[0] = 0x30 + (d4<<4) | (d3);
+  out[1] = 0x30 + (d2<<4) | (d1);
+  out[2] = 0x30 + (d0<<4);
 }

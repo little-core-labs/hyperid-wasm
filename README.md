@@ -54,13 +54,13 @@ const id = generator()
 
 ## Benchmark
 
-This original module is ~4x faster than this one.
+This [original module is][hyperid] **~4x faster** than _this one_.
 
 ```
-hyperid generate - variable length (original) x 11,024,841 ops/sec ±0.83% (89 runs sampled)
-hyperid generate - variable length (wasm) x 3,545,414 ops/sec ±0.93% (89 runs sampled)
-hyperid generate - fixed length (original) x 9,288,525 ops/sec ±1.39% (88 runs sampled)
-hyperid generate - fixed length (wasm) x 3,264,580 ops/sec ±0.95% (91 runs sampled)
+hyperid generate - variable length (original) x 11,806,789 ops/sec ±1.59% (83 runs sampled)
+hyperid generate - variable length (wasm) x 4,179,909 ops/sec ±0.95% (88 runs sampled)
+hyperid generate - fixed length (original) x 9,347,663 ops/sec ±3.26% (88 runs sampled)
+hyperid generate - fixed length (wasm) x 3,772,629 ops/sec ±2.14% (92 runs sampled)
 ```
 
 ## Limits

@@ -100,6 +100,16 @@ test('generate() - validate', (t) => {
     t.ok(decode(hyperid({urlSafe: true, fixedLength: true, startFrom: 1024})(), { urlSafe: true }))
     t.ok(decode(hyperid({urlSafe: true, fixedLength: false, startFrom: 2 * 1024})(), { urlSafe: true }))
     t.ok(decode(hyperid({urlSafe: false, fixedLength: true, startFrom: 2})()))
+
+    let max = 10
+    let i = max
+    const hid = hyperid({ fixedLength: true })
+    while (--i) {
+      const decoded = decode(hid())
+      t.ok(decoded)
+      t.equal(max - i - 1, decoded.count)
+    }
+
     t.end()
   })
 })
