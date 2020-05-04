@@ -1,6 +1,6 @@
 [package]
 name = "jwerle/hyperid-wasm"
-version = "0.0.0"
+version = "0.1.0"
 description = "A hyperid implementation written in ZZ compiled to WASM"
 license = "MIT"
 repository = "little-core-labs/hyperid-wasm"
