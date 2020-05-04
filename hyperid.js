@@ -1,0 +1,61 @@
+
+module.exports = loadWebAssembly
+
+loadWebAssembly.supported = typeof WebAssembly !== 'undefined'
+
+function loadWebAssembly (opts) {
+  if (!loadWebAssembly.supported) return null
+
+  var imp = opts && opts.imports
+  var wasm = toUint8Array('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')
+  var ready = null
+
+  var mod = {
+    buffer: wasm,
+    memory: null,
+    exports: null,
+    realloc: realloc,
+    onload: onload
+  }
+
+  onload(function () {})
+
+  return mod
+
+  function realloc (size) {
+    mod.exports.memory.grow(Math.max(0, Math.ceil(Math.abs(size - mod.memory.length) / 65536)))
+    mod.memory = new Uint8Array(mod.exports.memory.buffer)
+  }
+
+  function onload (cb) {
+    if (mod.exports) return cb()
+
+    if (ready) {
+      ready.then(cb.bind(null, null)).catch(cb)
+      return
+    }
+
+    try {
+      if (opts && opts.async) throw new Error('async')
+      setup({instance: new WebAssembly.Instance(new WebAssembly.Module(wasm), imp)})
+    } catch (err) {
+      ready = WebAssembly.instantiate(wasm, imp).then(setup)
+    }
+
+    onload(cb)
+  }
+
+  function setup (w) {
+    mod.exports = w.instance.exports
+    mod.memory = mod.exports.memory && mod.exports.memory.buffer && new Uint8Array(mod.exports.memory.buffer)
+  }
+}
+
+function toUint8Array (s) {
+  if (typeof atob === 'function') return new Uint8Array(atob(s).split('').map(charCodeAt))
+  return (require('buf' + 'fer').Buffer).from(s, 'base64')
+}
+
+function charCodeAt (c) {
+  return c.charCodeAt(0)
+}

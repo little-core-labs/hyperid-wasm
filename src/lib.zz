@@ -1,0 +1,152 @@
+using base64
+
+using "uuid.h"::{ uuid_generate }
+
+export const usize MAX_INT = 268435456;
+export const usize UUID_BYTES = 16;
+// last byte is never used, but needed for initial b64 encoding before normalization
+export const usize CONTEXT_ID_BYTES = 24;
+// 10 for padding
+export const usize RESULT_ID_BYTES = CONTEXT_ID_BYTES + 10;
+
+export struct UUID {
+  u8 bytes[UUID_BYTES];
+}
+
+export struct Options packed {
+  bool fixed_length;
+  bool url_safe;
+}
+
+export struct Context {
+  UUID uuid;
+  Options options;
+  u32 count;
+  u8 id[CONTEXT_ID_BYTES];
+}
+
+export struct Result {
+  u8 bytes[RESULT_ID_BYTES];
+}
+
+export fn make(Context new mut *self, u32 offset, Options options)
+{
+  uuid_generate(self->uuid.bytes);
+
+  self->options.fixed_length = options.fixed_length;
+  self->options.url_safe = options.url_safe;
+
+  self->count = offset;
+
+  baseid(self->id, &self->uuid, self->options.url_safe);
+}
+
+export fn count(Context *self) -> u32 {
+  return self->count;
+}
+
+export fn generate(Context mut *self, Result mut *out) -> usize
+  where safe(out)
+  where len(out->bytes) == RESULT_ID_BYTES
+  model return <= RESULT_ID_BYTES
+{
+  usize mut counter_offset = 0;
+  usize mut offset = 0;
+  usize mut padded = log10(self->count) + 1;
+  usize mut size = 0;
+
+  let opts = &self->options;
+
+  for (usize mut i = 0 ; i < CONTEXT_ID_BYTES - 1; ++i) {
+    out->bytes[i] = self->id[i];
+  }
+
+  offset += CONTEXT_ID_BYTES - 1;
+  size += offset;
+
+  if opts->fixed_length {
+    counter_offset = 10;
+    padded = 10;
+  } else {
+    counter_offset = padded;
+  }
+
+  static_attest(RESULT_ID_BYTES == len(out->bytes));
+
+  // pad counter
+  for (usize mut i = 0; i < padded; ++i) {
+    static_attest(len(out->bytes) > offset + i);
+    out->bytes[offset + i] = (u8) 0x30;
+  }
+
+  size += padded;
+  offset--;
+
+  u32 mut n = self->count;
+  for (usize mut i = counter_offset; i > 0; --i) {
+    static_attest(len(out->bytes) > offset + i);
+    out->bytes[offset + i] = (u8) (0x30 + (n % 10));
+    n = n / 10;
+  }
+
+  self->count = self->count + 1;
+
+  static_attest(size <= RESULT_ID_BYTES);
+  return size;
+}
+
+export fn baseid(u8 mut *out, UUID *uuid, bool url_safe) -> usize
+  where 24 == len(out)
+  where 16 == len(uuid->bytes)
+{
+  usize mut size = base64::encode(out, uuid->bytes, 16);
+
+  if url_safe {
+    for (usize mut i = 0; i < size; ++i) {
+      switch out[i] {
+        (u8) '+' => { out[i] = (u8) '_'; }
+        (u8) '/' => { out[i] = (u8) '-'; }
+      }
+    }
+
+    static_attest(24 == size);
+    if (u8) '=' == out[size - 1] {
+      if (u8) '=' == out[size - 2] {
+        out[size - 2] = (u8) '-';
+        out[size - 1] = 0;
+        size--;
+      }
+    }
+
+    return size;
+  }
+
+  // normalize
+  static_attest(24 == size);
+  if (u8) '=' == out[size - 1] {
+    if (u8) '=' == out[size - 2] {
+      out[size - 2] = (u8) '/';
+      out[size - 1] = 0;
+      size--;
+    }
+  }
+
+  return size;
+}
+
+export fn result_encoding_length() -> usize {
+  return RESULT_ID_BYTES;
+}
+
+fn log10(u32 n) -> usize {
+  if n >= 1000000000 { return 9; }
+  if n >= 100000000 { return 8; }
+  if n >= 10000000 { return 7; }
+  if n >= 1000000 { return 6; }
+  if n >= 100000 { return 5; }
+  if n >= 10000 { return 4; }
+  if n >= 1000 { return 3; }
+  if n >= 100 { return 2; }
+  if n >= 10 { return 1; }
+  return 0;
+}

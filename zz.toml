@@ -1,0 +1,20 @@
+[project]
+version = "0.0.0"
+name = "hyperid"
+cincludes = []
+cobjects = []
+pkgconfig = []
+
+lflags = []
+
+cflags = []
+
+[variants]
+default = []
+
+[dependencies]
+varint-wasm = "*" # in node_modules/@little-core-labs
+base64-wasm = "*" # in node_modules/
+pool = "*"
+
+[repos]

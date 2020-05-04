@@ -1,0 +1,12 @@
+[package]
+name = "jwerle/hyperid-wasm"
+version = "0.0.0"
+description = "A hyperid implementation written in ZZ compiled to WASM"
+license = "MIT"
+repository = "little-core-labs/hyperid-wasm"
+readme = "README.md"
+homepage = "https://github.com/little-core-labs/hyperid-wasm"
+
+[[module]]
+name = "hyperid"
+source = "hyperid.wasm"
