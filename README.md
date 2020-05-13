@@ -8,7 +8,7 @@ hyperid-wasm
 ### Node
 
 ```sh
-$ npm install @little-core-labs/hyperid-wasm
+$ npm install @12core/hyperid-wasm
 ```
 
 ### WAPM
