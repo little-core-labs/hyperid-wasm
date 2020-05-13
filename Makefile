@@ -42,7 +42,7 @@ ZZFLAGS += --release
 export CC
 export CFLAGS
 export LDFLAGS
-export ZZ_MODULE_PATHS=$(CWD)/node_modules:$(CWD)/node_modules/@little-core-labs
+export ZZ_MODULE_PATHS=$(CWD)/node_modules:$(CWD)/node_modules/@12core
 
 .PHONY: target
 
