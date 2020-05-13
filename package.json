@@ -1,6 +1,6 @@
 {
   "name": "@12core/hyperid-wasm",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "hyperid implementation written in ZZ compiled to WASM format",
   "main": "index.js",
   "scripts": {
